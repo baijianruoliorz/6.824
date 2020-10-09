@@ -43,5 +43,6 @@ func Reduce(key string, values []string) string {
 	sort.Strings(vv)
 
 	val := strings.Join(vv, " ")
+
 	return val
 }

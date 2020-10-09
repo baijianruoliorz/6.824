@@ -14,6 +14,18 @@ import "strconv"
 // and reply for an RPC.
 //
 
+func stringTest() string {
+	a := "Hello xiaoxi"
+	//go语言中不能够直接转化成string
+	a += strconv.Itoa(1)
+	return a
+}
+func masterSocks() string {
+	s := "/var/tmp/824-mr-"
+	s += strconv.Itoa(os.Geteuid())
+	return s
+}
+
 type ExampleArgs struct {
 	X int
 }
@@ -23,7 +35,6 @@ type ExampleReply struct {
 }
 
 // Add your RPC definitions here.
-
 
 // Cook up a unique-ish UNIX-domain socket name
 // in /var/tmp, for the master.
