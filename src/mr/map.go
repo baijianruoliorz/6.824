@@ -27,7 +27,9 @@ func Map(fileName string, taskIndex int, nReduce int, mapF func(string, string) 
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		log.Fatalf("cannot open %v", fileName)
+
 	}
+	//这个会变成[]byte数组，同样可以用于ｓｔｒｉｎｇ函数
 
 	kva := mapF(fileName, string(content))
 
@@ -53,4 +55,33 @@ func Map(fileName string, taskIndex int, nReduce int, mapF func(string, string) 
 		f.Close()
 		os.Rename(f.Name(), intermediateFileName)
 	}
+}
+func maps(fileName string, taskIndex int, nReduce int, mapF func(string, string) []KeyValue) {
+	content, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		log.Fatalf("cannot open %v", fileName)
+	}
+	kva := mapF(fileName, string(content))
+	output := make([][]KeyValue, nReduce)
+	for _, kv := range kva {
+		indexReduce := ihash(kv.Key) % nReduce
+		output[indexReduce] = append(output[indexReduce], kv)
+	}
+	for reduceNumber, kvs := range output {
+		intermediateFileName := getIntermediateFileName(taskIndex, reduceNumber)
+		f, err := ioutil.TempFile("", "map_temp")
+		if err != nil {
+			log.Printf("Error; %v", err)
+		}
+		enc := json.NewEncoder(f)
+		for _, kv := range kvs {
+			err := enc.Encode(&kv)
+			if err != nil {
+				log.Printf("Error; %v", err)
+			}
+		}
+		f.Close()
+		os.Rename(f.Name(), intermediateFileName)
+	}
+
 }
